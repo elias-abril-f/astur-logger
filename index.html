@@ -129,6 +129,7 @@ header {
   color: var(--white);
   line-height: 1;
   pointer-events: none;
+  white-space: nowrap;
 }
 .ns-val.negative { color: var(--crimson); }
 .ns-val.positive { color: var(--sage); }
@@ -383,6 +384,13 @@ header {
   color: rgba(255,255,255,0.4);
   letter-spacing: 0.05em;
 }
+.entry-time {
+  font-family: var(--font-b);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
 .entry-delete {
   background: none;
   border: none;
@@ -684,16 +692,8 @@ header {
         </div>
       </div>
 
-      <!-- Edge + Grip + Hands -->
-      <div class="field-row thirds">
-        <div class="field">
-          <label>Edge (mm)</label>
-          <div class="num-stepper">
-            <button class="ns-btn" id="sd-edge" type="button">−</button>
-            <div class="ns-val muted" id="sv-edge">—</div>
-            <button class="ns-btn" id="si-edge" type="button">+</button>
-          </div>
-        </div>
+      <!-- Grip + Hands -->
+      <div class="field-row">
         <div class="field">
           <label>Grip</label>
           <select id="f-grip">
@@ -715,8 +715,16 @@ header {
         </div>
       </div>
 
-      <!-- Weight -->
-      <div class="field-row full">
+      <!-- Edge + Weight -->
+      <div class="field-row">
+        <div class="field">
+          <label>Edge (mm)</label>
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-edge" type="button">−</button>
+            <div class="ns-val muted" id="sv-edge">—</div>
+            <button class="ns-btn" id="si-edge" type="button">+</button>
+          </div>
+        </div>
         <div class="field">
           <label>Weight (kg)</label>
           <div class="num-stepper">
@@ -727,28 +735,8 @@ header {
         </div>
       </div>
 
-      <!-- Duration -->
+      <!-- Sets × Reps -->
       <div class="field-row">
-        <div class="field">
-          <label>Rep Duration (sec)</label>
-          <div class="num-stepper">
-            <button class="ns-btn" id="sd-duration" type="button">−</button>
-            <div class="ns-val" id="sv-duration">10 s</div>
-            <button class="ns-btn" id="si-duration" type="button">+</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Rest Between Reps (sec)</label>
-          <div class="num-stepper">
-            <button class="ns-btn" id="sd-restRep" type="button">−</button>
-            <div class="ns-val" id="sv-restRep">30 s</div>
-            <button class="ns-btn" id="si-restRep" type="button">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sets × Reps + set rest -->
-      <div class="field-row thirds">
         <div class="field">
           <label>Sets</label>
           <div class="num-stepper">
@@ -763,6 +751,26 @@ header {
             <button class="ns-btn" id="sd-reps" type="button">−</button>
             <div class="ns-val" id="sv-reps">6</div>
             <button class="ns-btn" id="si-reps" type="button">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timing -->
+      <div class="field-row thirds">
+        <div class="field">
+          <label>Rep Duration (sec)</label>
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-duration" type="button">−</button>
+            <div class="ns-val" id="sv-duration">10 s</div>
+            <button class="ns-btn" id="si-duration" type="button">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Rep Rest (sec)</label>
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-restRep" type="button">−</button>
+            <div class="ns-val" id="sv-restRep">30 s</div>
+            <button class="ns-btn" id="si-restRep" type="button">+</button>
           </div>
         </div>
         <div class="field">
@@ -899,6 +907,7 @@ function renderStepper(key) {
     el.textContent = s.val;
     el.className   = 'ns-val';
   }
+  el.style.fontSize = el.textContent.length > 5 ? '11px' : el.textContent.length > 4 ? '13px' : '';
 }
 
 function adjStepper(key, dir, useFast) {
@@ -1015,6 +1024,7 @@ function entryCardHTML(e) {
   const restRepStr = e.restRep  ? `${e.restRep}s`  : '—';
   const restSetStr = e.restSet  ? `${e.restSet}s`  : '—';
   const edgeStr    = e.edge     ? `${e.edge}mm`    : '—';
+  const timeStr    = e.ts ? new Date(e.ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
 
   return `<div class="entry-card ${e.type === 'pull' ? 'pull' : ''}">
     <div class="entry-header">
@@ -1022,7 +1032,10 @@ function entryCardHTML(e) {
         <div class="entry-type">${typeLabel}</div>
         <div class="entry-grip">${gripLabel}</div>
       </div>
-      <button class="entry-delete" onclick="deleteEntry(${e.id})">×</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${timeStr ? `<div class="entry-time">${timeStr}</div>` : ''}
+        <button class="entry-delete" onclick="deleteEntry(${e.id})">×</button>
+      </div>
     </div>
     <div class="entry-stats">
       <div class="stat-pill">Edge <span>${edgeStr}</span></div>
