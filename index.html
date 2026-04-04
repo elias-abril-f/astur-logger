@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#252323">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Astur Logger">
+<meta name="application-name" content="Astur Logger">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="manifest" href="/manifest.json">
+<title>Astur Climbing — Hangboard Logger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark:     #252323;
+  --dark2:    #1a1818;
+  --sage:     #848E78;
+  --sage-20:  rgba(132,142,120,0.15);
+  --sage-40:  rgba(132,142,120,0.35);
+  --sage-60:  rgba(132,142,120,0.6);
+  --crimson:  #BD6B73;
+  --crimson-20: rgba(189,107,115,0.15);
+  --amber:    #C8A84B;
+  --amber-20: rgba(200,168,75,0.15);
+  --rose:     #DB93B0;
+  --white:    #FFFFFF;
+  --font-d:   'Orbitron', sans-serif;
+  --font-b:   'Roboto', sans-serif;
+  --r:        12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--dark);
+  color: var(--white);
+  font-family: var(--font-b);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ── APP SHELL ─────────────────────────────────── */
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* ── HEADER ────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(16px + env(safe-area-inset-top)) 20px 10px;
+  flex-shrink: 0;
+}
+.logo-wordmark {
+  font-family: var(--font-d);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage);
+  line-height: 1;
+}
+.logo-sub {
+  font-family: var(--font-b);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.header-mountain { width: 52px; opacity: 0.7; }
+.shop-link {
+  font-family: var(--font-d);
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(132,142,120,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-link:hover { color: var(--sage); }
+
+/* ── TAB BAR ───────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.tab {
+  flex: 1;
+  padding: 10px 0;
+  font-family: var(--font-d);
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active {
+  color: var(--sage);
+  border-bottom-color: var(--sage);
+}
+
+/* ── VIEWS ─────────────────────────────────────── */
+.view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.view.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sage-40); border-radius: 1px; }
+
+/* ── SECTION TITLES ────────────────────────────── */
+.section-title {
+  font-family: var(--font-d);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--sage);
+  padding: 14px 20px 8px;
+  flex-shrink: 0;
+}
+
+/* ── LOG FORM ──────────────────────────────────── */
+.form-body {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.field-row.thirds {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.field-row.full {
+  grid-template-columns: 1fr;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field label {
+  font-family: var(--font-d);
+  font-size: 6.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage-60);
+}
+.field input,
+.field select,
+.field textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: var(--font-b);
+  font-size: 14px;
+  padding: 9px 11px;
+  width: 100%;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--sage);
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23848E78'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.field select option { background: #2e2c2c; }
+.field textarea {
+  resize: none;
+  height: 60px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.field input[type="number"] { font-family: var(--font-d); font-size: 16px; font-weight: 700; }
+
+/* type toggle */
+.type-toggle {
+  display: flex;
+  gap: 6px;
+}
+.type-btn {
+  flex: 1;
+  padding: 9px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.4);
+  font-family: var(--font-d);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.type-btn.active-hang   { background: var(--sage-20);   border-color: var(--sage);    color: var(--sage);    }
+.type-btn.active-pull   { background: var(--amber-20);  border-color: var(--amber);   color: var(--amber);   }
+
+/* ── SUBMIT BTN ────────────────────────────────── */
+.log-btn {
+  margin: 4px 20px 24px;
+  padding: 16px;
+  background: var(--sage);
+  color: var(--dark);
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--font-d);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.log-btn:active { transform: scale(0.98); background: #6e7866; }
+
+/* ── DIAGONAL BAND ─────────────────────────────── */
+.diagonal-band {
+  height: 2px;
+  background: repeating-linear-gradient(-45deg, var(--sage), var(--sage) 3px, transparent 3px, transparent 8px);
+  margin: 2px 20px 10px;
+  opacity: 0.3;
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+
+/* ── HISTORY VIEW ──────────────────────────────── */
+.history-controls {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px 4px;
+  flex-shrink: 0;
+}
+.hist-btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  font-family: var(--font-d);
+  font-size: 7px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hist-btn.danger { border-color: var(--crimson-20); color: var(--crimson); }
+.hist-btn:active { opacity: 0.7; }
+
+.session-group { padding: 0 20px 4px; }
+.session-date {
+  font-family: var(--font-d);
+  font-size: 7px;
+  letter-spacing: 0.25em;
+  color: var(--sage);
+  padding: 12px 0 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 6px;
+}
+
+.entry-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r);
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  position: relative;
+  overflow: hidden;
+}
+.entry-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--sage);
+  border-radius: 3px 0 0 3px;
+}
+.entry-card.pull::before { background: var(--amber); }
+
+.entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.entry-type {
+  font-family: var(--font-d);
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+.entry-card.pull .entry-type { color: var(--amber); }
+
+.entry-grip {
+  font-family: var(--font-b);
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.05em;
+}
+.entry-delete {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.15);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 0 0 8px;
+  line-height: 1;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.entry-delete:active { color: var(--crimson); }
+
+.entry-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.stat-pill {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-family: var(--font-d);
+  font-size: 8px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.05em;
+}
+.stat-pill span {
+  color: var(--white);
+  font-weight: 700;
+}
+.entry-notes {
+  margin-top: 6px;
+  font-family: var(--font-b);
+  font-style: italic;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.4;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  opacity: 0.4;
+}
+.empty-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+.empty-text {
+  font-family: var(--font-d);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage);
+  text-align: center;
+}
+
+/* ── STATS VIEW ────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 20px 10px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-card-label {
+  font-family: var(--font-d);
+  font-size: 6.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.stat-card-value {
+  font-family: var(--font-d);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+}
+.stat-card-value .unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.3);
+}
+.stat-card.accent { border-color: var(--sage-40); }
+.stat-card.accent .stat-card-value { color: var(--sage); }
+
+.chart-wrap {
+  margin: 0 20px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r);
+  padding: 14px;
+}
+.chart-title {
+  font-family: var(--font-d);
+  font-size: 6.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage-60);
+  margin-bottom: 10px;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 60px;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar {
+  width: 100%;
+  background: var(--sage);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.4s ease;
+}
+.bar-label {
+  font-family: var(--font-d);
+  font-size: 6px;
+  color: rgba(255,255,255,0.25);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+}
+
+/* ── SHARE MODAL ───────────────────────────────── */
+#share-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: flex-end;
+  z-index: 200;
+  padding: 0;
+}
+#share-modal.hidden { display: none; }
+.modal-sheet {
+  background: #2a2828;
+  border-radius: 18px 18px 0 0;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 80dvh;
+  overflow-y: auto;
+}
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 0 auto 4px;
+}
+.modal-title {
+  font-family: var(--font-d);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--sage);
+  text-align: center;
+}
+.summary-box {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r);
+  padding: 14px;
+  font-family: var(--font-b);
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.7);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+}
+.modal-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--r);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: var(--white);
+  font-family: var(--font-d);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.modal-btn.primary { background: var(--sage); color: var(--dark); border-color: var(--sage); font-weight: 700; }
+.modal-btn:active { opacity: 0.8; }
+
+/* ── TOAST ─────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--sage);
+  color: var(--dark);
+  font-family: var(--font-d);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 20px;
+  white-space: nowrap;
+  z-index: 300;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* ── MOUNTAIN DECORATION ───────────────────────── */
+.mountain-divider {
+  width: 100%;
+  display: block;
+  line-height: 0;
+  opacity: 0.18;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div>
+      <div class="logo-wordmark">Astur Climbing</div>
+      <div class="logo-sub">Hangboard Logger</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+      <svg class="header-mountain" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+        <path style="fill:#848e78" d="m 510.16308,224.67616 c -2.13857,0.24125 -4.70703,0.93666 -8.14062,1.85742 -6.44504,1.72831 -15.308,3.75182 -19.69531,4.49805 -6.01466,1.02302 -10.53394,3.99876 -18.36915,12.09375 -9.12807,9.43072 -12.12812,11.16608 -24.67773,14.28125 -7.85758,1.95046 -15.99233,5.08626 -18.07617,6.96875 -9.49637,8.57875 -16.00906,31.63192 -24.77735,87.68945 -4.21125,26.92348 -6.8213,37.10994 -14.09179,55.00586 -4.90752,12.0796 -11.97732,31.37653 -15.71094,42.88281 -3.73361,11.50628 -8.65853,23.24974 -10.94531,26.0957 l -4.15821,5.17383 -9.01367,-13.33984 c -5.50228,-8.14397 -10.44141,-13.33789 -12.68359,-13.33789 -2.01988,0 -6.68974,2.57308 -10.37695,5.71875 -3.68724,3.14567 -11.29563,9.03791 -16.90821,13.09375 -12.76691,9.22582 -19.25018,16.28877 -26.28515,28.63867 -4.75235,8.3427 -6.41834,9.69336 -11.94727,9.69336 -5.17072,0 -8.44809,-2.19046 -16.78906,-11.22461 -15.5921,-16.88786 -23.46067,-15.33345 -34.62695,6.83984 -4.45716,8.85071 -10.14242,16.40652 -15.80274,21.00196 -13.37841,10.86146 -37.20057,26.53388 -69.48437,45.88086 v 49.22851 l 824.79492,-0.41797 v -48.33203 c -43.56192,-32.026 -99.37745,-69.22306 -106.95703,-76.77929 -13.21673,-13.176 -25.50738,-24.78192 -27.31055,-25.79102 -2.06808,-1.15736 -6.69842,-0.80387 -12.54297,0.95508 -10.50284,3.16088 -15.75314,1.12004 -22.11914,-8.59571 -1.87013,-2.85418 -7.4107,-7.95034 -12.31445,-11.32421 -9.62543,-6.62248 -37.31751,-46.26616 -43.16407,-61.79493 -1.734,-4.60563 -4.34821,-9.95066 -5.375,-11.32031 -2.12061,-2.82874 -35.55479,-20.98047 -38.64453,-20.98047 -1.11103,0 -9.85987,3.67402 -19.4414,8.16407 -9.58152,4.49004 -19.12845,8.16406 -21.21485,8.16406 -2.08639,0 1.6163,2.49325 -2.73242,-1.43555 -4.34869,-3.92881 -9.25874,-7.14453 -10.91211,-7.14453 -5.06358,0 -36.16096,26.30004 -37.52539,31.73633 -1.44803,5.76941 -3.0153,6.08401 -10.60937,2.13281 -8.73505,-4.54485 -14.25445,-11.77737 -15.72071,-20.60156 -0.74608,-4.49007 -5.30584,-25.15538 -10.13281,-45.92188 -4.82694,-20.76649 -10.61243,-47.55886 -12.85547,-59.53906 -3.71948,-19.86609 -4.88915,-22.83798 -13.30078,-33.76953 -10.40228,-13.51854 -12.94561,-16.86829 -19.36133,-16.14453 z"/>
+      </svg>
+      <a href="https://asturclimbing.com/shop" class="shop-link" target="_blank" rel="noopener">Shop ↗</a>
+    </div>
+  </header>
+
+  <svg class="mountain-divider" viewBox="0 0 480 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0 14 L60 4 L100 10 L150 1 L200 8 L250 2 L300 10 L360 0 L420 7 L480 3 L480 14 Z" fill="#848E78"/>
+  </svg>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab active" data-tab="log"     onclick="switchTab('log')">Log Set</button>
+    <button class="tab"        data-tab="history" onclick="switchTab('history')">History</button>
+    <button class="tab"        data-tab="stats"   onclick="switchTab('stats')">Stats</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- LOG VIEW                                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="view" id="view-log">
+    <div class="section-title">New Entry</div>
+
+    <div class="form-body">
+
+      <!-- Exercise type -->
+      <div class="field">
+        <label>Exercise Type</label>
+        <div class="type-toggle">
+          <button class="type-btn active-hang" id="btn-hang" onclick="setType('hang')">Hang</button>
+          <button class="type-btn" id="btn-pull" onclick="setType('pull')">Lift / Pull</button>
+        </div>
+      </div>
+
+      <!-- Edge + Grip + Hands -->
+      <div class="field-row thirds">
+        <div class="field">
+          <label>Edge Size (mm)</label>
+          <input type="number" id="f-edge" min="1" max="50" placeholder="18" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Grip</label>
+          <select id="f-grip">
+            <option value="crimp">Crimp</option>
+            <option value="half-crimp">Half-Crimp</option>
+            <option value="open">Open Hand</option>
+            <option value="pinch">Pinch</option>
+            <option value="pocket">Pocket</option>
+            <option value="sloper">Sloper</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Hands</label>
+          <select id="f-hands">
+            <option value="both">Both</option>
+            <option value="right">Right</option>
+            <option value="left">Left</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Weight -->
+      <div class="field-row full">
+        <div class="field">
+          <label>Weight (kg)</label>
+          <select id="f-weight">
+            <option value="-50">−50 kg</option>
+            <option value="-47.5">−47.5 kg</option>
+            <option value="-45">−45 kg</option>
+            <option value="-42.5">−42.5 kg</option>
+            <option value="-40">−40 kg</option>
+            <option value="-37.5">−37.5 kg</option>
+            <option value="-35">−35 kg</option>
+            <option value="-32.5">−32.5 kg</option>
+            <option value="-30">−30 kg</option>
+            <option value="-27.5">−27.5 kg</option>
+            <option value="-25">−25 kg</option>
+            <option value="-22.5">−22.5 kg</option>
+            <option value="-20">−20 kg</option>
+            <option value="-17.5">−17.5 kg</option>
+            <option value="-15">−15 kg</option>
+            <option value="-12.5">−12.5 kg</option>
+            <option value="-10">−10 kg</option>
+            <option value="-7.5">−7.5 kg</option>
+            <option value="-5">−5 kg</option>
+            <option value="-2.5">−2.5 kg</option>
+            <option value="0" selected>BW</option>
+            <option value="2.5">+2.5 kg</option>
+            <option value="5">+5 kg</option>
+            <option value="7.5">+7.5 kg</option>
+            <option value="10">+10 kg</option>
+            <option value="12.5">+12.5 kg</option>
+            <option value="15">+15 kg</option>
+            <option value="17.5">+17.5 kg</option>
+            <option value="20">+20 kg</option>
+            <option value="22.5">+22.5 kg</option>
+            <option value="25">+25 kg</option>
+            <option value="27.5">+27.5 kg</option>
+            <option value="30">+30 kg</option>
+            <option value="32.5">+32.5 kg</option>
+            <option value="35">+35 kg</option>
+            <option value="37.5">+37.5 kg</option>
+            <option value="40">+40 kg</option>
+            <option value="42.5">+42.5 kg</option>
+            <option value="45">+45 kg</option>
+            <option value="47.5">+47.5 kg</option>
+            <option value="50">+50 kg</option>
+            <option value="55">+55 kg</option>
+            <option value="60">+60 kg</option>
+            <option value="65">+65 kg</option>
+            <option value="70">+70 kg</option>
+            <option value="75">+75 kg</option>
+            <option value="80">+80 kg</option>
+            <option value="85">+85 kg</option>
+            <option value="90">+90 kg</option>
+            <option value="95">+95 kg</option>
+            <option value="100">+100 kg</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="field-row">
+        <div class="field">
+          <label>Rep Duration (sec)</label>
+          <input type="number" id="f-duration" min="1" max="120" placeholder="10" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Rest Between Reps (sec)</label>
+          <input type="number" id="f-rest-rep" min="1" max="300" placeholder="30" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- Sets × Reps + set rest -->
+      <div class="field-row thirds">
+        <div class="field">
+          <label>Sets</label>
+          <input type="number" id="f-sets" min="1" max="20" placeholder="4" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Reps</label>
+          <input type="number" id="f-reps" min="1" max="30" placeholder="6" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Set Rest (sec)</label>
+          <input type="number" id="f-rest-set" min="1" max="600" placeholder="180" inputmode="numeric">
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field field-row full">
+        <label>Notes</label>
+        <textarea id="f-notes" placeholder="Form notes, fatigue, conditions…"></textarea>
+      </div>
+
+    </div>
+
+    <div class="diagonal-band"></div>
+    <button class="log-btn" onclick="logEntry()">+ Log Set</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- HISTORY VIEW                               -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="view hidden" id="view-history">
+    <div class="history-controls">
+      <button class="hist-btn" onclick="openShare()">Export / Share</button>
+      <button class="hist-btn danger" onclick="clearAll()">Clear All</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- STATS VIEW                                 -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="view hidden" id="view-stats">
+    <div class="section-title">Overview</div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="chart-wrap" id="chart-wrap">
+      <div class="chart-title">Sessions — Last 8</div>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+    <div class="section-title" style="padding-top:6px">Edge Distribution</div>
+    <div class="chart-wrap" id="edge-chart-wrap">
+      <div class="chart-title">Sets per Edge Size</div>
+      <div class="bar-chart" id="edge-chart"></div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- SHARE MODAL -->
+<div id="share-modal" class="hidden" onclick="closeShare(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Export Session</div>
+    <pre class="summary-box" id="summary-text"></pre>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="downloadCSV()">CSV</button>
+      <button class="modal-btn" onclick="copyText()">Copy</button>
+      <button class="modal-btn primary" onclick="nativeShare()">Share</button>
+    </div>
+    <button class="modal-btn" onclick="closeShare(null)" style="margin-top:2px">Close</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STORAGE KEY ───────────────────────────────
+const KEY = 'astur-logger-entries';
+
+// ── STATE ─────────────────────────────────────
+let entries = [];
+let exerciseType = 'hang';
+
+function loadEntries() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  } catch { entries = []; }
+}
+
+function saveEntries() {
+  localStorage.setItem(KEY, JSON.stringify(entries));
+}
+
+// ── TABS ──────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('hidden', v.id !== 'view-' + tab));
+  if (tab === 'history') renderHistory();
+  if (tab === 'stats')   renderStats();
+}
+
+// ── TYPE TOGGLE ───────────────────────────────
+function setType(t) {
+  exerciseType = t;
+  document.getElementById('btn-hang').className = 'type-btn' + (t === 'hang' ? ' active-hang' : '');
+  document.getElementById('btn-pull').className = 'type-btn' + (t === 'pull' ? ' active-pull' : '');
+}
+
+// ── LOG ENTRY ─────────────────────────────────
+function logEntry() {
+  const v = (id, fallback = '') => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : fallback;
+  };
+  const n = (id, def = null) => {
+    const val = parseFloat(v(id));
+    return isNaN(val) ? def : val;
+  };
+
+  const entry = {
+    id:        Date.now(),
+    ts:        new Date().toISOString(),
+    type:      exerciseType,
+    edge:      n('f-edge'),
+    grip:      v('f-grip'),
+    hands:     v('f-hands') || 'both',
+    weight:    parseFloat(document.getElementById('f-weight').value) || 0,
+    duration:  n('f-duration'),
+    restRep:   n('f-rest-rep'),
+    sets:      n('f-sets'),
+    reps:      n('f-reps'),
+    restSet:   n('f-rest-set'),
+    notes:     v('f-notes'),
+  };
+
+  entries.unshift(entry);
+  saveEntries();
+  showToast('Set logged');
+  clearForm();
+}
+
+function clearForm() {
+  document.getElementById('f-weight').value = '0';
+  ['f-edge','f-duration',
+   'f-rest-rep','f-sets','f-reps','f-rest-set','f-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+// ── RENDER HISTORY ────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🏔️</div>
+      <div class="empty-text">No entries yet.<br>Log your first set.</div>
+    </div>`;
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  entries.forEach(e => {
+    const d = new Date(e.ts);
+    const key = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(e);
+  });
+
+  list.innerHTML = Object.entries(groups).map(([date, items]) => `
+    <div class="session-group">
+      <div class="session-date">${date}</div>
+      ${items.map(e => entryCardHTML(e)).join('')}
+    </div>
+  `).join('');
+}
+
+function entryCardHTML(e) {
+  const typeLabel  = e.type === 'pull' ? 'Lift / Pull' : 'Hang';
+  const gripLabel  = e.grip ? e.grip.charAt(0).toUpperCase() + e.grip.slice(1) : '—';
+  const w = e.weight != null ? e.weight : (e.weightAdd || 0) - (e.weightRem || 0);
+  const weightStr  = w > 0 ? `+${w}kg` : w < 0 ? `${w}kg` : 'BW';
+  const setsReps   = (e.sets && e.reps) ? `${e.sets}×${e.reps}` : e.sets ? `${e.sets} sets` : '—';
+  const durStr     = e.duration ? `${e.duration}s` : '—';
+  const restRepStr = e.restRep  ? `${e.restRep}s`  : '—';
+  const restSetStr = e.restSet  ? `${e.restSet}s`  : '—';
+  const edgeStr    = e.edge     ? `${e.edge}mm`    : '—';
+
+  return `<div class="entry-card ${e.type === 'pull' ? 'pull' : ''}">
+    <div class="entry-header">
+      <div>
+        <div class="entry-type">${typeLabel}</div>
+        <div class="entry-grip">${gripLabel}</div>
+      </div>
+      <button class="entry-delete" onclick="deleteEntry(${e.id})">×</button>
+    </div>
+    <div class="entry-stats">
+      <div class="stat-pill">Edge <span>${edgeStr}</span></div>
+      <div class="stat-pill">Hands <span>${e.hands ? e.hands.charAt(0).toUpperCase() + e.hands.slice(1) : 'Both'}</span></div>
+      <div class="stat-pill">Weight <span>${weightStr}</span></div>
+      <div class="stat-pill">Sets×Reps <span>${setsReps}</span></div>
+      <div class="stat-pill">Duration <span>${durStr}</span></div>
+      <div class="stat-pill">Rep Rest <span>${restRepStr}</span></div>
+      <div class="stat-pill">Set Rest <span>${restSetStr}</span></div>
+    </div>
+    ${e.notes ? `<div class="entry-notes">"${e.notes}"</div>` : ''}
+  </div>`;
+}
+
+function deleteEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  saveEntries();
+  renderHistory();
+}
+
+function clearAll() {
+  if (!confirm('Delete all entries? This cannot be undone.')) return;
+  entries = [];
+  saveEntries();
+  renderHistory();
+}
+
+// ── RENDER STATS ──────────────────────────────
+function renderStats() {
+  const grid = document.getElementById('stats-grid');
+
+  if (!entries.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">📊</div>
+      <div class="empty-text">No data yet</div>
+    </div>`;
+    document.getElementById('chart-wrap').style.display = 'none';
+    document.getElementById('edge-chart-wrap').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('chart-wrap').style.display = '';
+  document.getElementById('edge-chart-wrap').style.display = '';
+
+  const totalSets  = entries.reduce((s,e) => s + (e.sets || 1), 0);
+  const totalReps  = entries.reduce((s,e) => s + (e.sets||1)*(e.reps||1), 0);
+  const hangs      = entries.filter(e => e.type === 'hang').length;
+  const pulls      = entries.filter(e => e.type === 'pull').length;
+
+  // Sessions = unique dates
+  const dates = [...new Set(entries.map(e => e.ts.slice(0,10)))];
+  const sessions = dates.length;
+
+  // Most used edge
+  const edgeCounts = {};
+  entries.filter(e => e.edge).forEach(e => { edgeCounts[e.edge] = (edgeCounts[e.edge]||0) + (e.sets||1); });
+  const topEdge = Object.entries(edgeCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  // Most used grip
+  const gripCounts = {};
+  entries.forEach(e => { if(e.grip) gripCounts[e.grip] = (gripCounts[e.grip]||0)+1; });
+  const topGrip = Object.entries(gripCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  grid.innerHTML = `
+    <div class="stat-card accent">
+      <div class="stat-card-label">Total Sets</div>
+      <div class="stat-card-value">${totalSets}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Total Reps</div>
+      <div class="stat-card-value">${totalReps}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Sessions</div>
+      <div class="stat-card-value">${sessions}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Hang / Pull</div>
+      <div class="stat-card-value">${hangs}<span class="unit"> / ${pulls}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Top Edge</div>
+      <div class="stat-card-value">${topEdge ? topEdge[0] : '—'}<span class="unit">${topEdge ? 'mm' : ''}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Top Grip</div>
+      <div class="stat-card-value" style="font-size:14px;padding-top:4px">${topGrip ? topGrip[0] : '—'}</div>
+    </div>
+  `;
+
+  // Sessions bar chart (last 8 dates, sets per date)
+  const last8 = dates.slice(0,8).reverse();
+  const setsPerDate = last8.map(d => ({
+    label: d.slice(5),
+    val: entries.filter(e => e.ts.startsWith(d)).reduce((s,e)=>s+(e.sets||1),0)
+  }));
+  const maxVal = Math.max(...setsPerDate.map(s=>s.val), 1);
+  document.getElementById('bar-chart').innerHTML = setsPerDate.map(s => `
+    <div class="bar-col">
+      <div class="bar" style="height:${Math.round((s.val/maxVal)*56)+4}px"></div>
+      <div class="bar-label">${s.label}</div>
+    </div>`).join('');
+
+  // Edge distribution chart
+  const edgeSorted = Object.entries(edgeCounts).sort((a,b)=>Number(a[0])-Number(b[0]));
+  const maxEdge = Math.max(...edgeSorted.map(e=>e[1]), 1);
+  document.getElementById('edge-chart').innerHTML = edgeSorted.map(([edge, count]) => `
+    <div class="bar-col">
+      <div class="bar" style="height:${Math.round((count/maxEdge)*56)+4}px;background:var(--crimson)"></div>
+      <div class="bar-label">${edge}mm</div>
+    </div>`).join('') || '<div style="color:rgba(255,255,255,0.2);font-size:10px;padding:8px">No edge data</div>';
+}
+
+// ── SHARE / EXPORT ────────────────────────────
+function buildSummaryText() {
+  if (!entries.length) return 'No entries to export.';
+
+  const dates = [...new Set(entries.map(e => e.ts.slice(0,10)))];
+  const lines = ['ASTUR CLIMBING — HANGBOARD LOG', '================================', ''];
+
+  dates.forEach(d => {
+    const dayEntries = entries.filter(e => e.ts.startsWith(d));
+    const label = new Date(d).toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    lines.push(`📅 ${label}`);
+    dayEntries.forEach(e => {
+      const wv = e.weight != null ? e.weight : (e.weightAdd || 0) - (e.weightRem || 0);
+      const w = wv > 0 ? `+${wv}kg` : wv < 0 ? `${wv}kg` : 'BW';
+      lines.push(`  ${e.type === 'pull' ? '⬆' : '🤙'} ${e.grip || '—'} | ${e.edge ? e.edge+'mm' : '—'} | ${w} | ${e.sets||'?'}×${e.reps||'?'} × ${e.duration||'?'}s | rest ${e.restRep||'?'}s/${e.restSet||'?'}s${e.notes ? ' | '+e.notes : ''}`);
+    });
+    lines.push('');
+  });
+
+  lines.push(`Total sets: ${entries.reduce((s,e)=>s+(e.sets||1),0)}`);
+  lines.push(`Exported: ${new Date().toLocaleString()}`);
+  lines.push('asturclimbing.com');
+  return lines.join('\n');
+}
+
+function openShare() {
+  document.getElementById('summary-text').textContent = buildSummaryText();
+  document.getElementById('share-modal').classList.remove('hidden');
+}
+
+function closeShare(e) {
+  if (e && e.target !== document.getElementById('share-modal')) return;
+  document.getElementById('share-modal').classList.add('hidden');
+}
+
+function copyText() {
+  const text = document.getElementById('summary-text').textContent;
+  navigator.clipboard?.writeText(text).then(() => showToast('Copied')).catch(() => showToast('Copy failed'));
+}
+
+function nativeShare() {
+  const text = document.getElementById('summary-text').textContent;
+  if (navigator.share) {
+    navigator.share({ title: 'Astur Climbing — Hangboard Log', text }).catch(()=>{});
+  } else {
+    copyText();
+  }
+}
+
+function downloadCSV() {
+  const headers = ['Date','Time','Type','Edge(mm)','Grip','Hands','Weight(kg)','Duration(s)','Sets','Reps','RestRep(s)','RestSet(s)','Notes'];
+  const rows = entries.map(e => {
+    const d = new Date(e.ts);
+    return [
+      d.toLocaleDateString('en-GB'),
+      d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
+      e.type, e.edge||'', e.grip||'', e.hands||'both',
+      e.weight != null ? e.weight : (e.weightAdd||0) - (e.weightRem||0),
+      e.duration||'', e.sets||'', e.reps||'',
+      e.restRep||'', e.restSet||'',
+      (e.notes||'').replace(/,/g,';')
+    ].join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `astur-hangboard-log-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
+}
+
+// ── TOAST ──────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ── INIT ──────────────────────────────────────
+loadEntries();
+
+// ── SERVICE WORKER ────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .catch(err => console.warn('SW:', err));
+  });
+}
+
+// ── ANDROID INSTALL ───────────────────────────
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+</script>
+</body>
+</html>
