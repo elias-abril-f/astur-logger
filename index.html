@@ -93,6 +93,48 @@ header {
 }
 .shop-link:hover { color: var(--sage); }
 
+/* ── WEIGHT STEPPER ────────────────────────────── */
+.weight-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.weight-stepper:focus-within { border-color: var(--sage); }
+.w-btn {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: var(--white);
+  font-size: 22px;
+  font-weight: 300;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: background 0.15s;
+}
+.w-btn:active { background: var(--sage-40); }
+.w-val {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-d);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  pointer-events: none;
+}
+.w-val.negative { color: var(--crimson); }
+.w-val.positive { color: var(--sage); }
+
 /* ── TAB BAR ───────────────────────────────────── */
 .tab-bar {
   display: flex;
@@ -674,59 +716,11 @@ header {
       <div class="field-row full">
         <div class="field">
           <label>Weight (kg)</label>
-          <select id="f-weight">
-            <option value="-50">−50 kg</option>
-            <option value="-47.5">−47.5 kg</option>
-            <option value="-45">−45 kg</option>
-            <option value="-42.5">−42.5 kg</option>
-            <option value="-40">−40 kg</option>
-            <option value="-37.5">−37.5 kg</option>
-            <option value="-35">−35 kg</option>
-            <option value="-32.5">−32.5 kg</option>
-            <option value="-30">−30 kg</option>
-            <option value="-27.5">−27.5 kg</option>
-            <option value="-25">−25 kg</option>
-            <option value="-22.5">−22.5 kg</option>
-            <option value="-20">−20 kg</option>
-            <option value="-17.5">−17.5 kg</option>
-            <option value="-15">−15 kg</option>
-            <option value="-12.5">−12.5 kg</option>
-            <option value="-10">−10 kg</option>
-            <option value="-7.5">−7.5 kg</option>
-            <option value="-5">−5 kg</option>
-            <option value="-2.5">−2.5 kg</option>
-            <option value="0" selected>BW</option>
-            <option value="2.5">+2.5 kg</option>
-            <option value="5">+5 kg</option>
-            <option value="7.5">+7.5 kg</option>
-            <option value="10">+10 kg</option>
-            <option value="12.5">+12.5 kg</option>
-            <option value="15">+15 kg</option>
-            <option value="17.5">+17.5 kg</option>
-            <option value="20">+20 kg</option>
-            <option value="22.5">+22.5 kg</option>
-            <option value="25">+25 kg</option>
-            <option value="27.5">+27.5 kg</option>
-            <option value="30">+30 kg</option>
-            <option value="32.5">+32.5 kg</option>
-            <option value="35">+35 kg</option>
-            <option value="37.5">+37.5 kg</option>
-            <option value="40">+40 kg</option>
-            <option value="42.5">+42.5 kg</option>
-            <option value="45">+45 kg</option>
-            <option value="47.5">+47.5 kg</option>
-            <option value="50">+50 kg</option>
-            <option value="55">+55 kg</option>
-            <option value="60">+60 kg</option>
-            <option value="65">+65 kg</option>
-            <option value="70">+70 kg</option>
-            <option value="75">+75 kg</option>
-            <option value="80">+80 kg</option>
-            <option value="85">+85 kg</option>
-            <option value="90">+90 kg</option>
-            <option value="95">+95 kg</option>
-            <option value="100">+100 kg</option>
-          </select>
+          <div class="weight-stepper">
+            <button class="w-btn" id="w-dec" type="button">−</button>
+            <div class="w-val" id="w-display">BW</div>
+            <button class="w-btn" id="w-inc" type="button">+</button>
+          </div>
         </div>
       </div>
 
@@ -852,6 +846,55 @@ function setType(t) {
   document.getElementById('btn-pull').className = 'type-btn' + (t === 'pull' ? ' active-pull' : '');
 }
 
+// ── WEIGHT STEPPER ────────────────────────────
+let weightVal = 0;
+const WEIGHT_STEP = 2.5;
+const WEIGHT_MIN  = -50;
+const WEIGHT_MAX  = 100;
+
+function renderWeight() {
+  const el = document.getElementById('w-display');
+  if (weightVal === 0) {
+    el.textContent = 'BW';
+    el.className = 'w-val';
+  } else if (weightVal > 0) {
+    el.textContent = '+' + weightVal + ' kg';
+    el.className = 'w-val positive';
+  } else {
+    el.textContent = weightVal + ' kg';
+    el.className = 'w-val negative';
+  }
+}
+
+function adjWeight(dir) {
+  weightVal = Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, weightVal + dir * WEIGHT_STEP));
+  // snap to clean 2.5 multiple
+  weightVal = Math.round(weightVal / WEIGHT_STEP) * WEIGHT_STEP;
+  renderWeight();
+}
+
+(function initWeightStepper() {
+  let holdTimer = null, holdInterval = null;
+  function start(dir) {
+    adjWeight(dir);
+    holdTimer = setTimeout(() => {
+      holdInterval = setInterval(() => adjWeight(dir), 100);
+    }, 400);
+  }
+  function stop() { clearTimeout(holdTimer); clearInterval(holdInterval); }
+  const dec = document.getElementById('w-dec');
+  const inc = document.getElementById('w-inc');
+  [dec, inc].forEach(btn => {
+    const dir = btn === inc ? 1 : -1;
+    btn.addEventListener('mousedown',   () => start(dir));
+    btn.addEventListener('touchstart',  e => { e.preventDefault(); start(dir); }, { passive: false });
+    btn.addEventListener('mouseup',     stop);
+    btn.addEventListener('mouseleave',  stop);
+    btn.addEventListener('touchend',    stop);
+    btn.addEventListener('touchcancel', stop);
+  });
+})();
+
 // ── LOG ENTRY ─────────────────────────────────
 function logEntry() {
   const v = (id, fallback = '') => {
@@ -870,7 +913,7 @@ function logEntry() {
     edge:      n('f-edge'),
     grip:      v('f-grip'),
     hands:     v('f-hands') || 'both',
-    weight:    parseFloat(document.getElementById('f-weight').value) || 0,
+    weight:    weightVal,
     duration:  n('f-duration'),
     restRep:   n('f-rest-rep'),
     sets:      n('f-sets'),
@@ -886,7 +929,7 @@ function logEntry() {
 }
 
 function clearForm() {
-  document.getElementById('f-weight').value = '0';
+  weightVal = 0; renderWeight();
   ['f-edge','f-duration',
    'f-rest-rep','f-sets','f-reps','f-rest-set','f-notes'].forEach(id => {
     const el = document.getElementById(id);
