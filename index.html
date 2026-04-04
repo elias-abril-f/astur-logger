@@ -93,24 +93,22 @@ header {
 }
 .shop-link:hover { color: var(--sage); }
 
-/* ── WEIGHT STEPPER ────────────────────────────── */
-.weight-stepper {
+/* ── STEPPERS ───────────────────────────────────── */
+.num-stepper {
   display: flex;
   align-items: center;
-  gap: 0;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   overflow: hidden;
 }
-.weight-stepper:focus-within { border-color: var(--sage); }
-.w-btn {
-  width: 48px;
-  height: 48px;
+.ns-btn {
+  width: 44px;
+  height: 44px;
   background: rgba(255,255,255,0.05);
   border: none;
   color: var(--white);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 300;
   cursor: pointer;
   flex-shrink: 0;
@@ -121,19 +119,20 @@ header {
   user-select: none;
   transition: background 0.15s;
 }
-.w-btn:active { background: var(--sage-40); }
-.w-val {
+.ns-btn:active { background: var(--sage-40); }
+.ns-val {
   flex: 1;
   text-align: center;
   font-family: var(--font-d);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
   line-height: 1;
   pointer-events: none;
 }
-.w-val.negative { color: var(--crimson); }
-.w-val.positive { color: var(--sage); }
+.ns-val.negative { color: var(--crimson); }
+.ns-val.positive { color: var(--sage); }
+.ns-val.muted    { color: rgba(255,255,255,0.3); }
 
 /* ── TAB BAR ───────────────────────────────────── */
 .tab-bar {
@@ -688,8 +687,12 @@ header {
       <!-- Edge + Grip + Hands -->
       <div class="field-row thirds">
         <div class="field">
-          <label>Edge Size (mm)</label>
-          <input type="number" id="f-edge" min="1" max="50" placeholder="18" inputmode="numeric">
+          <label>Edge (mm)</label>
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-edge" type="button">−</button>
+            <div class="ns-val muted" id="sv-edge">—</div>
+            <button class="ns-btn" id="si-edge" type="button">+</button>
+          </div>
         </div>
         <div class="field">
           <label>Grip</label>
@@ -716,10 +719,10 @@ header {
       <div class="field-row full">
         <div class="field">
           <label>Weight (kg)</label>
-          <div class="weight-stepper">
-            <button class="w-btn" id="w-dec" type="button">−</button>
-            <div class="w-val" id="w-display">BW</div>
-            <button class="w-btn" id="w-inc" type="button">+</button>
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-weight" type="button">−</button>
+            <div class="ns-val" id="sv-weight">BW</div>
+            <button class="ns-btn" id="si-weight" type="button">+</button>
           </div>
         </div>
       </div>
@@ -728,11 +731,19 @@ header {
       <div class="field-row">
         <div class="field">
           <label>Rep Duration (sec)</label>
-          <input type="number" id="f-duration" min="1" max="120" placeholder="10" inputmode="numeric">
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-duration" type="button">−</button>
+            <div class="ns-val" id="sv-duration">10 s</div>
+            <button class="ns-btn" id="si-duration" type="button">+</button>
+          </div>
         </div>
         <div class="field">
           <label>Rest Between Reps (sec)</label>
-          <input type="number" id="f-rest-rep" min="1" max="300" placeholder="30" inputmode="numeric">
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-restRep" type="button">−</button>
+            <div class="ns-val" id="sv-restRep">30 s</div>
+            <button class="ns-btn" id="si-restRep" type="button">+</button>
+          </div>
         </div>
       </div>
 
@@ -740,15 +751,27 @@ header {
       <div class="field-row thirds">
         <div class="field">
           <label>Sets</label>
-          <input type="number" id="f-sets" min="1" max="20" placeholder="4" inputmode="numeric">
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-sets" type="button">−</button>
+            <div class="ns-val" id="sv-sets">4</div>
+            <button class="ns-btn" id="si-sets" type="button">+</button>
+          </div>
         </div>
         <div class="field">
           <label>Reps</label>
-          <input type="number" id="f-reps" min="1" max="30" placeholder="6" inputmode="numeric">
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-reps" type="button">−</button>
+            <div class="ns-val" id="sv-reps">6</div>
+            <button class="ns-btn" id="si-reps" type="button">+</button>
+          </div>
         </div>
         <div class="field">
           <label>Set Rest (sec)</label>
-          <input type="number" id="f-rest-set" min="1" max="600" placeholder="180" inputmode="numeric">
+          <div class="num-stepper">
+            <button class="ns-btn" id="sd-restSet" type="button">−</button>
+            <div class="ns-val" id="sv-restSet">180 s</div>
+            <button class="ns-btn" id="si-restSet" type="button">+</button>
+          </div>
         </div>
       </div>
 
@@ -846,52 +869,70 @@ function setType(t) {
   document.getElementById('btn-pull').className = 'type-btn' + (t === 'pull' ? ' active-pull' : '');
 }
 
-// ── WEIGHT STEPPER ────────────────────────────
-let weightVal = 0;
-const WEIGHT_STEP = 2.5;
-const WEIGHT_MIN  = -50;
-const WEIGHT_MAX  = 100;
+// ── STEPPERS ──────────────────────────────────
+const SP = {
+  edge:     { val: 0,   min: 0,   max: 50,  step: 1,   fast: 5  },
+  weight:   { val: 0,   min: -50, max: 100, step: 2.5, fast: 5  },
+  duration: { val: 10,  min: 1,   max: 300, step: 1,   fast: 5  },
+  restRep:  { val: 30,  min: 5,   max: 600, step: 5,   fast: 30 },
+  sets:     { val: 4,   min: 1,   max: 30,  step: 1,   fast: 5  },
+  reps:     { val: 6,   min: 1,   max: 50,  step: 1,   fast: 5  },
+  restSet:  { val: 180, min: 10,  max: 600, step: 5,   fast: 30 },
+};
+const SP_DEFAULTS = { edge: 0, weight: 0, duration: 10, restRep: 30, sets: 4, reps: 6, restSet: 180 };
 
-function renderWeight() {
-  const el = document.getElementById('w-display');
-  if (weightVal === 0) {
-    el.textContent = 'BW';
-    el.className = 'w-val';
-  } else if (weightVal > 0) {
-    el.textContent = '+' + weightVal + ' kg';
-    el.className = 'w-val positive';
+function renderStepper(key) {
+  const s = SP[key];
+  const el = document.getElementById('sv-' + key);
+  if (!el) return;
+  if (key === 'weight') {
+    if (s.val === 0)      { el.textContent = 'BW';              el.className = 'ns-val'; }
+    else if (s.val > 0)   { el.textContent = '+' + s.val + ' kg'; el.className = 'ns-val positive'; }
+    else                  { el.textContent = s.val + ' kg';     el.className = 'ns-val negative'; }
+  } else if (key === 'edge') {
+    el.textContent = s.val === 0 ? '—' : s.val + ' mm';
+    el.className   = s.val === 0 ? 'ns-val muted' : 'ns-val';
+  } else if (key === 'duration' || key === 'restRep' || key === 'restSet') {
+    el.textContent = s.val + ' s';
+    el.className   = 'ns-val';
   } else {
-    el.textContent = weightVal + ' kg';
-    el.className = 'w-val negative';
+    el.textContent = s.val;
+    el.className   = 'ns-val';
   }
 }
 
-function adjWeight(dir) {
-  weightVal = Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, weightVal + dir * WEIGHT_STEP));
-  // snap to clean 2.5 multiple
-  weightVal = Math.round(weightVal / WEIGHT_STEP) * WEIGHT_STEP;
-  renderWeight();
+function adjStepper(key, dir, useFast) {
+  const s = SP[key];
+  const inc = useFast ? s.fast : s.step;
+  s.val = Math.round(
+    Math.max(s.min, Math.min(s.max, s.val + dir * inc)) / s.step
+  ) * s.step;
+  renderStepper(key);
 }
 
-(function initWeightStepper() {
-  let holdTimer = null, holdInterval = null;
-  function start(dir) {
-    adjWeight(dir);
-    holdTimer = setTimeout(() => {
-      holdInterval = setInterval(() => adjWeight(dir), 100);
-    }, 400);
-  }
-  function stop() { clearTimeout(holdTimer); clearInterval(holdInterval); }
-  const dec = document.getElementById('w-dec');
-  const inc = document.getElementById('w-inc');
-  [dec, inc].forEach(btn => {
-    const dir = btn === inc ? 1 : -1;
-    btn.addEventListener('mousedown',   () => start(dir));
-    btn.addEventListener('touchstart',  e => { e.preventDefault(); start(dir); }, { passive: false });
-    btn.addEventListener('mouseup',     stop);
-    btn.addEventListener('mouseleave',  stop);
-    btn.addEventListener('touchend',    stop);
-    btn.addEventListener('touchcancel', stop);
+(function initSteppers() {
+  Object.keys(SP).forEach(key => {
+    renderStepper(key);
+    let holdTimer = null, holdInterval = null;
+    function start(dir) {
+      adjStepper(key, dir, false);
+      holdTimer = setTimeout(() => {
+        holdInterval = setInterval(() => adjStepper(key, dir, true), 100);
+      }, 400);
+    }
+    function stop() { clearTimeout(holdTimer); clearInterval(holdInterval); }
+    const dec = document.getElementById('sd-' + key);
+    const inc = document.getElementById('si-' + key);
+    if (!dec || !inc) return;
+    [dec, inc].forEach(btn => {
+      const d = btn === inc ? 1 : -1;
+      btn.addEventListener('mousedown',   () => start(d));
+      btn.addEventListener('touchstart',  e => { e.preventDefault(); start(d); }, { passive: false });
+      btn.addEventListener('mouseup',     stop);
+      btn.addEventListener('mouseleave',  stop);
+      btn.addEventListener('touchend',    stop);
+      btn.addEventListener('touchcancel', stop);
+    });
   });
 })();
 
@@ -910,15 +951,15 @@ function logEntry() {
     id:        Date.now(),
     ts:        new Date().toISOString(),
     type:      exerciseType,
-    edge:      n('f-edge'),
+    edge:      SP.edge.val || null,
     grip:      v('f-grip'),
     hands:     v('f-hands') || 'both',
-    weight:    weightVal,
-    duration:  n('f-duration'),
-    restRep:   n('f-rest-rep'),
-    sets:      n('f-sets'),
-    reps:      n('f-reps'),
-    restSet:   n('f-rest-set'),
+    weight:    SP.weight.val,
+    duration:  SP.duration.val,
+    restRep:   SP.restRep.val,
+    sets:      SP.sets.val,
+    reps:      SP.reps.val,
+    restSet:   SP.restSet.val,
     notes:     v('f-notes'),
   };
 
@@ -929,9 +970,8 @@ function logEntry() {
 }
 
 function clearForm() {
-  weightVal = 0; renderWeight();
-  ['f-edge','f-duration',
-   'f-rest-rep','f-sets','f-reps','f-rest-set','f-notes'].forEach(id => {
+  Object.keys(SP_DEFAULTS).forEach(key => { SP[key].val = SP_DEFAULTS[key]; renderStepper(key); });
+  ['f-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
