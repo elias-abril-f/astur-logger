@@ -200,9 +200,6 @@ header {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-.field-row.thirds {
-  grid-template-columns: 1fr 1fr 1fr;
-}
 .field-row.full {
   grid-template-columns: 1fr;
 }
@@ -756,7 +753,7 @@ header {
       </div>
 
       <!-- Timing -->
-      <div class="field-row thirds">
+      <div class="field-row">
         <div class="field">
           <label>Rep Duration (sec)</label>
           <div class="num-stepper">
@@ -773,6 +770,8 @@ header {
             <button class="ns-btn" id="si-restRep" type="button">+</button>
           </div>
         </div>
+      </div>
+      <div class="field-row">
         <div class="field">
           <label>Set Rest (sec)</label>
           <div class="num-stepper">
